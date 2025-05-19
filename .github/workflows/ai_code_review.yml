@@ -19,9 +19,8 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Python dependencies
-        run: |
-          pip install openai
+      - name: Install dependencies
+        run: pip install openai
 
       - name: Get PR Diff
         run: |
@@ -37,7 +36,7 @@ import openai
 openai.api_key = '${{ secrets.OPENAI_API_KEY }}'
 with open('diff.txt') as f:
     diff = f.read()
-prompt = f'''
+prompt = f\"\"\"
 You are a senior software engineer. Review the following code changes and provide:
 - Summary
 - Suggestions for improvement
@@ -46,7 +45,7 @@ You are a senior software engineer. Review the following code changes and provid
 
 Code Diff:
 {diff}
-'''
+\"\"\"
 response = openai.ChatCompletion.create(
     model='gpt-4',
     messages=[
