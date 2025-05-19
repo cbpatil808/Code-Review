@@ -24,7 +24,8 @@ jobs:
         run: |
           echo "Getting diff between commits..."
           git fetch origin main
-          git diff origin/main...HEAD > diff.txt || echo "No diff found."
+          # Try triple-dot diff (merge base), fallback to double-dot if no merge base
+          git diff origin/main...HEAD > diff.txt || git diff origin/main HEAD > diff.txt || echo "No diff found."
 
       - name: Run AIMLAPI code review
         env:
