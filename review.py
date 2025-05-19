@@ -1,7 +1,6 @@
 import os
 from openai import OpenAI
 
-# Initialize OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def get_code_review(diff):
@@ -16,7 +15,7 @@ Code Diff:
 {diff}
 """
     response = client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are a code reviewer AI."},
             {"role": "user", "content": prompt}
