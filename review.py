@@ -1,4 +1,3 @@
-# review.py
 import openai
 import os
 
@@ -15,14 +14,14 @@ You are a senior software engineer. Review the following code changes and provid
 Code Diff:
 {diff}
 """
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a code reviewer AI."},
             {"role": "user", "content": prompt}
-        ]
+        ],
     )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 if __name__ == "__main__":
     with open("diff.txt", "r") as f:
