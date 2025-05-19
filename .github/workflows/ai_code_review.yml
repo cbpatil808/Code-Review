@@ -20,14 +20,16 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install openai
+        run: |
+          pip install openai
 
-      - name: Get PR Diff
+      - name: Get diff from PR
         run: |
           git fetch origin main
           git diff origin/main...HEAD > diff.txt
 
-      - name: Run AI Review Script
+      - name: Run AI review
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: python3 review.py
+        run: |
+          python3 review.py
