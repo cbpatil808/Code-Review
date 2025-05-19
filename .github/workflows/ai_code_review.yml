@@ -1,19 +1,16 @@
-name: Code Review
+name: Code Review with AIMLAPI
 
 on:
   pull_request:
-    branches:
-      - main
+    types: [opened, synchronize, reopened]
 
 jobs:
-  code_review:
+  review:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Ensure full history to find merge base
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -23,18 +20,14 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Get diff between base and head
+      - name: Get diff between commits
         run: |
           echo "Getting diff between commits..."
           git fetch origin main
-          if git merge-base origin/main HEAD >/dev/null; then
-            git diff origin/main...HEAD > diff.txt
-          else
-            echo "No merge base found. Using full diff against HEAD."
-            git diff HEAD > diff.txt
-          fi
+          git diff origin/main...HEAD > diff.txt || echo "No diff found."
 
-      - name: Run AI Code Review
+      - name: Run AIMLAPI code review
         env:
-          AIMLAPI_KEY: ${{ secrets.AIMLAPI_KEY }}
-        run: python .github/scripts/review_aimlapi.py
+          AIML_API_KEY: ${{ secrets.AIML_API_KEY }}
+        run: |
+          python .github/scripts/review_aimlapi.py
