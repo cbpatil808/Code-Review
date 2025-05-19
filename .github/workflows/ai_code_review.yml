@@ -2,7 +2,7 @@ name: AI Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, reopened]
 
 jobs:
   review:
@@ -11,24 +11,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # ✅ Use a supported version
+          python-version: '3.10'
 
       - name: Install dependencies
-        run: pip install requests
-
-      - name: Get diff between base and head commits
         run: |
-          echo "Getting diff between ${{ github.event.pull_request.base.sha }} and ${{ github.event.pull_request.head.sha }}"
-          git fetch origin ${{ github.event.pull_request.base.ref }}
-          git diff origin/${{ github.event.pull_request.base.ref }}...HEAD > diff.txt
+          python -m pip install --upgrade pip
+          pip install requests
 
-      - name: Run AI Review with AIMLAPI
-        run: python .github/scripts/review_aimlapi.py
+      - name: Get diff between commits
+        run: |
+          echo "Getting diff between commits..."
+          git fetch origin ${{ github.base_ref }}
+          git diff origin/${{ github.base_ref }}...HEAD > diff.txt
+
+      - name: Run AI code review
         env:
-          AIML_API_KEY: ${{ secrets.AIML_API_KEY }}
+          AIMLAPI_KEY: ${{ secrets.AIMLAPI_KEY }}
+        run: |
+          python .github/scripts/review_aimlapi.py
