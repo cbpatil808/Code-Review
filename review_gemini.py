@@ -15,11 +15,10 @@ Code Diff:
 """
 
     api_key = os.environ["GEMINI_API_KEY"]
-    url = "https://generativelanguage.googleapis.com/v1beta2/models/text-bison-001:generateText"  # example endpoint, adjust if needed
+    url = f"https://generativelanguage.googleapis.com/v1beta2/models/text-bison-001:generateText?key={api_key}"
 
     headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
+        "Content-Type": "application/json"
     }
 
     payload = {
