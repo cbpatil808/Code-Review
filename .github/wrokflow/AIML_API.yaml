@@ -1,0 +1,33 @@
+name: Code Review with AIMLAPI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+    runs-on: ubuntu-22.04   # explicitly stable Ubuntu version
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Get diff between commits
+        run: |
+          echo "Getting diff between commits..."
+          git fetch origin main
+          # Try triple-dot diff (merge base), fallback to double-dot if no merge base
+          git diff origin/main...HEAD > diff.txt || git diff origin/main HEAD > diff.txt || echo "No diff found."
+
+      - name: Run AIMLAPI code review
+        env:
+          AIML_API_KEY: ${{ secrets.AIML_API_KEY }}
+        run: python .github/scripts/review_aimlapi.py
