@@ -2,38 +2,33 @@ name: AI Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize]
 
 jobs:
-  ai-review:
+  review:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # fetch full history for all branches
-
-      - name: Fetch base and head branches
-        run: |
-          git fetch origin +refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
-          git fetch origin +refs/heads/${{ github.event.pull_request.head.ref }}:refs/remotes/origin/${{ github.event.pull_request.head.ref }}
-
-      - name: Get diff between branches
-        run: |
-          git diff origin/${{ github.event.pull_request.base.ref }} origin/${{ github.event.pull_request.head.ref }} > diff.txt
-          echo "Diff between ${{ github.event.pull_request.base.ref }} and ${{ github.event.pull_request.head.ref }}:"
-          cat diff.txt
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: '3.10'  # ✅ Use a supported version
 
       - name: Install dependencies
         run: pip install requests
 
-      - name: Run AI Review Script
+      - name: Get diff between base and head commits
+        run: |
+          echo "Getting diff between ${{ github.event.pull_request.base.sha }} and ${{ github.event.pull_request.head.sha }}"
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff origin/${{ github.event.pull_request.base.ref }}...HEAD > diff.txt
+
+      - name: Run AI Review with AIMLAPI
+        run: python .github/scripts/review_aimlapi.py
         env:
-          AIMLAPI_API_KEY: ${{ secrets.AIMLAPI_API_KEY }}
-        run: python .github/scripts/review_aimlapi.py diff.txt
+          AIML_API_KEY: ${{ secrets.AIML_API_KEY }}
