@@ -1,22 +1,23 @@
 # review.py
 import openai
-import sys
 
-openai.api_key = "sk-..."  # Only for local testing, we'll override this in Actions
+import os
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def get_code_review(diff):
     prompt = f"""
-    You are a senior software engineer. Review the following code changes and provide:
-    - Summary
-    - Suggestions for improvement
-    - Key risks
-    - Test case considerations
+You are a senior software engineer. Review the following code changes and provide:
+- Summary
+- Suggestions for improvement
+- Key risks
+- Test case considerations
 
-    Code Diff:
-    {diff}
-    """
+Code Diff:
+{diff}
+"""
     response = openai.ChatCompletion.create(
-        model="gpt-4",  # Or "gpt-3.5-turbo" if on free trial
+        model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a code reviewer AI."},
             {"role": "user", "content": prompt}
@@ -25,5 +26,6 @@ def get_code_review(diff):
     return response['choices'][0]['message']['content']
 
 if __name__ == "__main__":
-    diff = sys.stdin.read()
+    with open("diff.txt", "r") as f:
+        diff = f.read()
     print(get_code_review(diff))
