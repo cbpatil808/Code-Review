@@ -6,13 +6,13 @@ on:
 
 jobs:
   review:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04   # explicitly stable Ubuntu version
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      - name: Set up Python 3.10
         uses: actions/setup-python@v4
         with:
           python-version: 3.10
@@ -30,5 +30,4 @@ jobs:
       - name: Run AIMLAPI code review
         env:
           AIML_API_KEY: ${{ secrets.AIML_API_KEY }}
-        run: |
-          python .github/scripts/review_aimlapi.py
+        run: python .github/scripts/review_aimlapi.py
