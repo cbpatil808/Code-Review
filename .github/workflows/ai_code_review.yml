@@ -2,34 +2,40 @@ name: AI Code Review
 
 on:
   pull_request:
-    types: [opened, synchronize]
     branches:
       - main
+      - 'feature/**'   # or any branches you want to monitor
 
 jobs:
-  review:
+  code_review:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout PR branch
+      - name: Checkout PR code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 2  # fetch history for diff
+
+      - name: Get diff from PR
+        id: diff
+        run: |
+          # Get diff between base and head commits
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff origin/${{ github.event.pull_request.base.ref }} ${{ github.event.pull_request.head.ref }} > diff.txt
+          echo "diff<<EOF" >> $GITHUB_OUTPUT
+          cat diff.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: 3.x
 
       - name: Install dependencies
-        run: |
-          pip install openai
+        run: pip install requests
 
-      - name: Get diff from PR
-        run: |
-          git fetch origin main
-          git diff > diff.txt
-
-      - name: Run AI review
+      - name: Run AI Code Review
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AIMLAPI_API_KEY: ${{ secrets.AIMLAPI_API_KEY }}
         run: |
-          python3 review.py
+          python .github/scripts/review_aimlapi.py
