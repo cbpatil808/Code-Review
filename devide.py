@@ -1,5 +1,5 @@
 a = 0
 b = 10
-res = a/b
-print(res)
-
+try:
+  res = a/b
+  print(res)
